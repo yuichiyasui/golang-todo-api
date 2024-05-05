@@ -1,0 +1,66 @@
+openapi: 3.0.0
+info:
+  title: Todo App API
+  version: 1.0.0
+servers:
+  - url: localhost:8080
+tags:
+  - name: task
+    description: タスクに関するAPI
+paths:
+  /tasks:
+    get:
+      summary: タスク一覧を取得する
+      tags:
+        - task
+      operationId: listTasks
+      responses:
+        '200':
+          description: タスク一覧を返す
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+        default:
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+      required:
+        - id
+        - title
+        - description
+        - status
+    TaskStatus:
+      type: string
+      enum:
+        - todo
+        - inProgress
+        - done
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
