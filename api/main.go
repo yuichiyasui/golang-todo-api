@@ -14,7 +14,10 @@ import (
 	middleware "github.com/oapi-codegen/gin-middleware"
 )
 
-func NewGinServer(server *handler.Server, port string) *http.Server {
+func main() {
+	port := flag.String("port", "8080", "Port for test HTTP server")
+	flag.Parse()
+
 	swagger, err := gen.GetSwagger()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
@@ -25,6 +28,9 @@ func NewGinServer(server *handler.Server, port string) *http.Server {
 	// that server names match. We don't know how this thing will be run.
 	swagger.Servers = nil
 
+	server := handler.NewServer()
+	serverStrictHandler := gen.NewStrictHandler(server, nil)
+
 	// This is how you set up a basic gin router
 	r := gin.Default()
 
@@ -32,22 +38,12 @@ func NewGinServer(server *handler.Server, port string) *http.Server {
 	// OpenAPI schema.
 	r.Use(middleware.OapiRequestValidator(swagger))
 
-	// We now register our petStore above as the handler for the interface
-	gen.RegisterHandlers(r, server)
+	gen.RegisterHandlers(r, serverStrictHandler)
 
 	s := &http.Server{
 		Handler: r,
-		Addr:    net.JoinHostPort("0.0.0.0", port),
+		Addr:    net.JoinHostPort("0.0.0.0", *port),
 	}
-	return s
-}
-
-func main() {
-	port := flag.String("port", "8080", "Port for test HTTP server")
-	flag.Parse()
-
-	server := handler.NewServer()
-	s := NewGinServer(server, *port)
 
 	log.Fatal(s.ListenAndServe())
 }

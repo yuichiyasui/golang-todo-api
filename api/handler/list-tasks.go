@@ -2,12 +2,11 @@ package handler
 
 import (
 	"api/gen"
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"context"
 )
 
-func (s *Server) ListTasks(c *gin.Context) {
+func (s *Server) ListTasks(ctx context.Context, request gen.ListTasksRequestObject) (gen.ListTasksResponseObject, error) {
 	tasks := []gen.Task{}
-	c.JSON(http.StatusOK, tasks)
+
+	return gen.ListTasks200JSONResponse(tasks), nil
 }
