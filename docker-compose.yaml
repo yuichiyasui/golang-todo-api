@@ -11,3 +11,5 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: golang_todo_api
       TZ: "Asia/Tokyo"
+    volumes:
+      - ./db/initdb.d:/docker-entrypoint-initdb.d
