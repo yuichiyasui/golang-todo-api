@@ -1,0 +1,11 @@
+pkgname = "model"
+output = "api/model"
+
+[mysql]
+  dbname  = "golang_todo_api"
+  host    = "localhost"
+  port    = 3306
+  user    = "root"
+  pass    = "root"
+  sslmode = "false"
+  tinyint_as_int = true
