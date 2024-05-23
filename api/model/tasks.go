@@ -28,6 +28,8 @@ type Task struct {
 	Title       string      `boil:"title" json:"title" toml:"title" yaml:"title"`
 	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
 	Status      TasksStatus `boil:"status" json:"status" toml:"status" yaml:"status"`
+	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	DeletedAt   null.Time   `boil:"deleted_at" json:"deleted_at,omitempty" toml:"deleted_at" yaml:"deleted_at,omitempty"`
 
 	R *taskR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L taskL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -38,11 +40,15 @@ var TaskColumns = struct {
 	Title       string
 	Description string
 	Status      string
+	CreatedAt   string
+	DeletedAt   string
 }{
 	ID:          "id",
 	Title:       "title",
 	Description: "description",
 	Status:      "status",
+	CreatedAt:   "created_at",
+	DeletedAt:   "deleted_at",
 }
 
 var TaskTableColumns = struct {
@@ -50,11 +56,15 @@ var TaskTableColumns = struct {
 	Title       string
 	Description string
 	Status      string
+	CreatedAt   string
+	DeletedAt   string
 }{
 	ID:          "tasks.id",
 	Title:       "tasks.title",
 	Description: "tasks.description",
 	Status:      "tasks.status",
+	CreatedAt:   "tasks.created_at",
+	DeletedAt:   "tasks.deleted_at",
 }
 
 // Generated where
@@ -186,16 +196,65 @@ func (w whereHelperTasksStatus) NIN(slice []TasksStatus) qm.QueryMod {
 	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
 }
 
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+type whereHelpernull_Time struct{ field string }
+
+func (w whereHelpernull_Time) EQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_Time) NEQ(x null.Time) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_Time) LT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_Time) LTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_Time) GT(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_Time) GTE(x null.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
+func (w whereHelpernull_Time) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_Time) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+
 var TaskWhere = struct {
 	ID          whereHelperuint64
 	Title       whereHelperstring
 	Description whereHelpernull_String
 	Status      whereHelperTasksStatus
+	CreatedAt   whereHelpertime_Time
+	DeletedAt   whereHelpernull_Time
 }{
 	ID:          whereHelperuint64{field: "`tasks`.`id`"},
 	Title:       whereHelperstring{field: "`tasks`.`title`"},
 	Description: whereHelpernull_String{field: "`tasks`.`description`"},
 	Status:      whereHelperTasksStatus{field: "`tasks`.`status`"},
+	CreatedAt:   whereHelpertime_Time{field: "`tasks`.`created_at`"},
+	DeletedAt:   whereHelpernull_Time{field: "`tasks`.`deleted_at`"},
 }
 
 // TaskRels is where relationship names are stored.
@@ -215,8 +274,8 @@ func (*taskR) NewStruct() *taskR {
 type taskL struct{}
 
 var (
-	taskAllColumns            = []string{"id", "title", "description", "status"}
-	taskColumnsWithoutDefault = []string{"title", "description", "status"}
+	taskAllColumns            = []string{"id", "title", "description", "status", "created_at", "deleted_at"}
+	taskColumnsWithoutDefault = []string{"title", "description", "status", "created_at", "deleted_at"}
 	taskColumnsWithDefault    = []string{"id"}
 	taskPrimaryKeyColumns     = []string{"id"}
 	taskGeneratedColumns      = []string{}
@@ -576,6 +635,13 @@ func (o *Task) Insert(ctx context.Context, exec boil.ContextExecutor, columns bo
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -811,6 +877,13 @@ var mySQLTaskUniqueColumns = []string{
 func (o *Task) Upsert(ctx context.Context, exec boil.ContextExecutor, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("model: no tasks provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {

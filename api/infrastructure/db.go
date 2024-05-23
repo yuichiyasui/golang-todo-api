@@ -2,15 +2,21 @@ package infrastructure
 
 import (
 	"database/sql"
-	"fmt"
+	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
 )
 
 func NewDBClient() (*sql.DB, error) {
-	dbname := "golang_todo_api"
-	user := "root"
-	password := "root"
+	locale, _ := time.LoadLocation("Asia/Tokyo")
+	c := mysql.Config{
+		DBName:    "golang_todo_api",
+		User:      "root",
+		Passwd:    "root",
+		ParseTime: true,
+		Loc:       locale,
+	}
+	dsn := c.FormatDSN()
 
-	return sql.Open("mysql", fmt.Sprintf("%s:%s@/%s", user, password, dbname))
+	return sql.Open("mysql", dsn)
 }
