@@ -3,14 +3,20 @@ package handler
 import (
 	"api/gen"
 	"context"
+	"net/http"
 	"strconv"
 )
 
 func (s *Server) ListTasks(ctx context.Context, request gen.ListTasksRequestObject) (gen.ListTasksResponseObject, error) {
-
 	tasks, err := s.tasksRepository.GetTasks(ctx)
 	if err != nil {
-		return nil, err
+		return gen.ListTasksdefaultJSONResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body: gen.Error{
+				Code:    "",
+				Message: err.Error(),
+			},
+		}, err
 	}
 
 	res := gen.ListTasks200JSONResponse{}
