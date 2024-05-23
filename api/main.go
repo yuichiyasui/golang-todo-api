@@ -3,6 +3,7 @@ package main
 import (
 	"api/gen"
 	"api/handler"
+	"api/infrastructure"
 	"flag"
 	"fmt"
 	"log"
@@ -24,11 +25,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	db, err := infrastructure.NewDBClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	// Clear out the servers array in the swagger spec, that skips validating
 	// that server names match. We don't know how this thing will be run.
 	swagger.Servers = nil
 
-	server := handler.NewServer()
+	server := handler.NewServer(db)
 	serverStrictHandler := gen.NewStrictHandler(server, nil)
 
 	// This is how you set up a basic gin router

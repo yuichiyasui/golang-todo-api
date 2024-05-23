@@ -1,13 +1,18 @@
 package handler
 
-import "api/gen"
+import (
+	"api/gen"
+	"database/sql"
+)
 
-type Server struct{}
+type Server struct {
+	DB *sql.DB
+}
 
 // Make sure we conform to StrictServerInterface
 
 var _ gen.StrictServerInterface = (*Server)(nil)
 
-func NewServer() *Server {
-	return &Server{}
+func NewServer(db *sql.DB) *Server {
+	return &Server{DB: db}
 }

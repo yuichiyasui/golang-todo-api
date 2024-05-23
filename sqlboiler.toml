@@ -1,5 +1,8 @@
 pkgname = "model"
 output = "api/model"
+wipe     = true
+no-tests = true
+add-enum-types = true
 
 [mysql]
   dbname  = "golang_todo_api"

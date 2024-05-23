@@ -27,7 +27,7 @@ type Task struct {
 	ID          uint64      `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Title       string      `boil:"title" json:"title" toml:"title" yaml:"title"`
 	Description null.String `boil:"description" json:"description,omitempty" toml:"description" yaml:"description,omitempty"`
-	Status      string      `boil:"status" json:"status" toml:"status" yaml:"status"`
+	Status      TasksStatus `boil:"status" json:"status" toml:"status" yaml:"status"`
 
 	R *taskR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L taskL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -151,16 +151,51 @@ func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
 func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelperTasksStatus struct{ field string }
+
+func (w whereHelperTasksStatus) EQ(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelperTasksStatus) NEQ(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelperTasksStatus) LT(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelperTasksStatus) LTE(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelperTasksStatus) GT(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelperTasksStatus) GTE(x TasksStatus) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+func (w whereHelperTasksStatus) IN(slice []TasksStatus) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
+}
+func (w whereHelperTasksStatus) NIN(slice []TasksStatus) qm.QueryMod {
+	values := make([]interface{}, 0, len(slice))
+	for _, value := range slice {
+		values = append(values, value)
+	}
+	return qm.WhereNotIn(fmt.Sprintf("%s NOT IN ?", w.field), values...)
+}
+
 var TaskWhere = struct {
 	ID          whereHelperuint64
 	Title       whereHelperstring
 	Description whereHelpernull_String
-	Status      whereHelperstring
+	Status      whereHelperTasksStatus
 }{
 	ID:          whereHelperuint64{field: "`tasks`.`id`"},
 	Title:       whereHelperstring{field: "`tasks`.`title`"},
 	Description: whereHelpernull_String{field: "`tasks`.`description`"},
-	Status:      whereHelperstring{field: "`tasks`.`status`"},
+	Status:      whereHelperTasksStatus{field: "`tasks`.`status`"},
 }
 
 // TaskRels is where relationship names are stored.

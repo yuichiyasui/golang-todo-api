@@ -51,17 +51,46 @@ func makeCacheKey(cols boil.Columns, nzDefaults []string) string {
 	return str
 }
 
+type TasksStatus string
+
 // Enum values for TasksStatus
 const (
-	TasksStatusTODO        string = "TODO"
-	TasksStatusIN_PROGRESS string = "IN_PROGRESS"
-	TasksStatusDONE        string = "DONE"
+	TasksStatusTODO        TasksStatus = "TODO"
+	TasksStatusIN_PROGRESS TasksStatus = "IN_PROGRESS"
+	TasksStatusDONE        TasksStatus = "DONE"
 )
 
-func AllTasksStatus() []string {
-	return []string{
+func AllTasksStatus() []TasksStatus {
+	return []TasksStatus{
 		TasksStatusTODO,
 		TasksStatusIN_PROGRESS,
 		TasksStatusDONE,
+	}
+}
+
+func (e TasksStatus) IsValid() error {
+	switch e {
+	case TasksStatusTODO, TasksStatusIN_PROGRESS, TasksStatusDONE:
+		return nil
+	default:
+		return errors.New("enum is not valid")
+	}
+}
+
+func (e TasksStatus) String() string {
+	return string(e)
+}
+
+func (e TasksStatus) Ordinal() int {
+	switch e {
+	case TasksStatusTODO:
+		return 0
+	case TasksStatusIN_PROGRESS:
+		return 1
+	case TasksStatusDONE:
+		return 2
+
+	default:
+		panic(errors.New("enum is not valid"))
 	}
 }
