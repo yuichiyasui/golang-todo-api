@@ -6,8 +6,20 @@ import (
 	"database/sql"
 )
 
-func GetTasks(ctx context.Context, db *sql.DB) (model.TaskSlice, error) {
-	tasks, err := model.Tasks().All(ctx, db)
+type TasksRepositoryInterface interface {
+	GetTasks(ctx context.Context) (model.TaskSlice, error)
+}
+
+type TasksRepository struct {
+	db *sql.DB
+}
+
+func NewTasksRepository(db *sql.DB) (*TasksRepository, error) {
+	return &TasksRepository{db: db}, nil
+}
+
+func (r *TasksRepository) GetTasks(ctx context.Context) (model.TaskSlice, error) {
+	tasks, err := model.Tasks().All(ctx, r.db)
 
 	if err != nil {
 		return nil, err

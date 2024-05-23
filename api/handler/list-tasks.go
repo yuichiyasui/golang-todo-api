@@ -2,13 +2,13 @@ package handler
 
 import (
 	"api/gen"
-	"api/repository"
 	"context"
 	"strconv"
 )
 
 func (s *Server) ListTasks(ctx context.Context, request gen.ListTasksRequestObject) (gen.ListTasksResponseObject, error) {
-	tasks, err := repository.GetTasks(ctx, s.DB)
+
+	tasks, err := s.tasksRepository.GetTasks(ctx)
 	if err != nil {
 		return nil, err
 	}

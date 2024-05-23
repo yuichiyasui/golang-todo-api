@@ -35,7 +35,10 @@ func main() {
 	// that server names match. We don't know how this thing will be run.
 	swagger.Servers = nil
 
-	server := handler.NewServer(db)
+	server, err := handler.NewServer(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 	serverStrictHandler := gen.NewStrictHandler(server, nil)
 
 	// This is how you set up a basic gin router
