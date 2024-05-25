@@ -10,12 +10,19 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	middleware "github.com/oapi-codegen/gin-middleware"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	port := flag.String("port", "8080", "Port for test HTTP server")
 	flag.Parse()
 
@@ -43,6 +50,21 @@ func main() {
 
 	// This is how you set up a basic gin router
 	r := gin.Default()
+
+	origin := os.Getenv("APP_URL")
+	if origin == "" {
+		log.Fatal("Error loading .env file")
+	}
+
+	corsConfig := cors.New(cors.Config{
+		AllowOrigins:     []string{origin},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	})
+	r.Use(corsConfig)
 
 	// Use our validation middleware to check all requests against the
 	// OpenAPI schema.

@@ -8,6 +8,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
+    "gen:oai": "openapi-typescript ../api/schema/openapi.yaml -o ./src/api/__generated__/schema.ts",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
@@ -26,6 +27,8 @@
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.6",
+    "openapi-fetch": "0.9.7",
+    "openapi-typescript": "6.7.6",
     "postcss": "8.4.38",
     "prettier": "3.2.5",
     "tailwindcss": "3.4.3",
