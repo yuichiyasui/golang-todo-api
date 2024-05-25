@@ -9,3 +9,11 @@ Golangでのコーディングの実践を目的としたTODOアプリのAPI
 ```bash
 make install
 ```
+
+## Applications Port
+
+| app      | port |
+| -------- | ---- |
+| api 　　　| 8080 |
+| frontend | 5173 |
+| database | 3306 |
