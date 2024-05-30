@@ -1,30 +1,29 @@
-# React + TypeScript + Vite
+# Task App Client side
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+タスク管理アプリのクライアントサイドアプリケーション
 
-Currently, two official plugins are available:
+## Summary
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React
+- Vite
+- Bun
+- Tanstack Router
+- shadcn/ui
+- tailwindcss
+- react-hook-form
+- openapi-fetch
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Bunをインストール
 
-- Configure the top-level `parserOptions` property like this:
+https://bun.sh/docs/installation
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+`.env.example`を参考に`.env`を作成
+
+開発サーバーを起動
+
+```bash
+bun i   # 依存関係をインストール
+bun dev # 開発サーバーを起動
 ```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
