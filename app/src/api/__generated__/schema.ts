@@ -11,6 +11,10 @@ export interface paths {
     /** タスクを作成する */
     post: operations["createTask"];
   };
+  "/tasks/{taskId}": {
+    /** タスクを更新する */
+    put: operations["updateTask"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -85,6 +89,34 @@ export interface operations {
       default: {
         content: {
           "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** タスクを更新する */
+  updateTask: {
+    parameters: {
+      path: {
+        /** @description タスクID */
+        taskId: string;
+      };
+    };
+    requestBody?: {
+      content: {
+        "application/json": {
+          /** @description タスク名 */
+          title: string;
+          /** @description タスクの説明 */
+          description?: string;
+          status?: components["schemas"]["TaskStatus"];
+        };
+      };
+    };
+    responses: {
+      /** @description 更新したタスクを返す */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Task"];
         };
       };
     };
