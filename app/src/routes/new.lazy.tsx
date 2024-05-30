@@ -107,7 +107,11 @@ const Page = () => {
             aria-errormessage={descriptionFieldErrorId}
             aria-invalid={!!errors.description}
           />
-          <p id={descriptionFieldErrorId} aria-live="polite">
+          <p
+            id={descriptionFieldErrorId}
+            aria-live="polite"
+            className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
+          >
             {errors.description?.message}
           </p>
         </div>
@@ -116,7 +120,12 @@ const Page = () => {
             作成
           </Button>
         </div>
-        <p aria-live="assertive">{errors.root?.message}</p>
+        <p
+          aria-live="assertive"
+          className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
+        >
+          {errors.root?.message}
+        </p>
       </form>
     </main>
   );
