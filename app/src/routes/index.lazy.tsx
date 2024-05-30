@@ -1,7 +1,7 @@
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { components } from "../api/__generated__/schema";
-import { client } from "../api/api";
+import { components } from "@/api/__generated__/schema";
+import { client } from "@/api/api";
 
 const Page = () => {
   const [tasks, setTasks] = useState<components["schemas"]["Task"][]>([]);
