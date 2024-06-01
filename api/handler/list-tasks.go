@@ -12,7 +12,7 @@ func (s *Server) ListTasks(ctx context.Context, request gen.ListTasksRequestObje
 		return gen.ListTasksdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,
 			Body: gen.Error{
-				Code:    "",
+				Code:    "ERROR",
 				Message: err.Error(),
 			},
 		}, err

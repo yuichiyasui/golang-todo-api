@@ -51,10 +51,10 @@ func (mr *MockTasksRepositoryInterfaceMockRecorder) CreateTask(ctx, input interf
 }
 
 // GetTasks mocks base method.
-func (m *MockTasksRepositoryInterface) GetTasks(ctx context.Context) ([]task.Task, error) {
+func (m *MockTasksRepositoryInterface) GetTasks(ctx context.Context) ([]*task.Task, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetTasks", ctx)
-	ret0, _ := ret[0].([]task.Task)
+	ret0, _ := ret[0].([]*task.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
