@@ -43,7 +43,11 @@ const Page = () => {
               <TableRow key={t.id}>
                 <TableCell>{t.id}</TableCell>
                 <TableCell>
-                  <p>{t.title}</p>
+                  <p>
+                    <Link to={`/$taskId`} params={{ taskId: t.id }}>
+                      {t.title}
+                    </Link>
+                  </p>
                   {t.description && (
                     <p className={cn("text-xs", "mt-1", "text-slate-400")}>
                       {t.description}

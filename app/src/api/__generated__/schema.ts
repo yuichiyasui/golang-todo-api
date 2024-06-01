@@ -12,6 +12,8 @@ export interface paths {
     post: operations["createTask"];
   };
   "/tasks/{taskId}": {
+    /** タスク詳細を取得する */
+    get: operations["getTaskDetail"];
     /** タスクを更新する */
     put: operations["updateTask"];
   };
@@ -93,6 +95,29 @@ export interface operations {
       };
     };
   };
+  /** タスク詳細を取得する */
+  getTaskDetail: {
+    parameters: {
+      path: {
+        /** @description タスクID */
+        taskId: string;
+      };
+    };
+    responses: {
+      /** @description タスク詳細を返す */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Task"];
+        };
+      };
+      /** @description エラー */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
   /** タスクを更新する */
   updateTask: {
     parameters: {
@@ -117,6 +142,12 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["Task"];
+        };
+      };
+      /** @description エラー */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
         };
       };
     };
