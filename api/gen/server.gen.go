@@ -17,6 +17,7 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gin-gonic/gin"
+	"github.com/oapi-codegen/runtime"
 	strictgin "github.com/oapi-codegen/runtime/strictmiddleware/gin"
 )
 
@@ -28,6 +29,9 @@ type ServerInterface interface {
 	// タスクを作成する
 	// (POST /tasks)
 	CreateTask(c *gin.Context)
+	// タスクを更新する
+	// (PUT /tasks/{taskId})
+	UpdateTask(c *gin.Context, taskId string)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -65,6 +69,30 @@ func (siw *ServerInterfaceWrapper) CreateTask(c *gin.Context) {
 	siw.Handler.CreateTask(c)
 }
 
+// UpdateTask operation middleware
+func (siw *ServerInterfaceWrapper) UpdateTask(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "taskId" -------------
+	var taskId string
+
+	err = runtime.BindStyledParameter("simple", false, "taskId", c.Param("taskId"), &taskId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter taskId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.UpdateTask(c, taskId)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -94,6 +122,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/tasks", wrapper.ListTasks)
 	router.POST(options.BaseURL+"/tasks", wrapper.CreateTask)
+	router.PUT(options.BaseURL+"/tasks/:taskId", wrapper.UpdateTask)
 }
 
 type ListTasksRequestObject struct {
@@ -155,6 +184,24 @@ func (response CreateTaskdefaultJSONResponse) VisitCreateTaskResponse(w http.Res
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type UpdateTaskRequestObject struct {
+	TaskId string `json:"taskId"`
+	Body   *UpdateTaskJSONRequestBody
+}
+
+type UpdateTaskResponseObject interface {
+	VisitUpdateTaskResponse(w http.ResponseWriter) error
+}
+
+type UpdateTask200JSONResponse Task
+
+func (response UpdateTask200JSONResponse) VisitUpdateTaskResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// タスク一覧を取得する
@@ -163,6 +210,9 @@ type StrictServerInterface interface {
 	// タスクを作成する
 	// (POST /tasks)
 	CreateTask(ctx context.Context, request CreateTaskRequestObject) (CreateTaskResponseObject, error)
+	// タスクを更新する
+	// (PUT /tasks/{taskId})
+	UpdateTask(ctx context.Context, request UpdateTaskRequestObject) (UpdateTaskResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -235,19 +285,56 @@ func (sh *strictHandler) CreateTask(ctx *gin.Context) {
 	}
 }
 
+// UpdateTask operation middleware
+func (sh *strictHandler) UpdateTask(ctx *gin.Context, taskId string) {
+	var request UpdateTaskRequestObject
+
+	request.TaskId = taskId
+
+	var body UpdateTaskJSONRequestBody
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.UpdateTask(ctx, request.(UpdateTaskRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "UpdateTask")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(UpdateTaskResponseObject); ok {
+		if err := validResponse.VisitUpdateTaskResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8xUzWobPRR9lXC/byniabsJs0t/FoYuAvEueKHOXNtKZiRV0hSMGagnm0JpG0JJGigU",
-	"uug/7baFtnkYxcF9iyKpduJ4bBK66WqE5v6cc+65GkAicik4cqMhHoBOephTf7yjlFDuIJWQqAxDf52I",
-	"FN3X9CVCDNooxrtQEshRa9qt+1cSUHi/YApTiLdChbP4NpnEi3vbmBhXq0X1znzrFHWimDRM8FoELK29",
-	"1oaawhf4X2EHYvivcUa68Ydxw7XcDJElAcNMdgkqLIVJLJmBN+26iN3mFBTyIne1jEgFEGB8Q4muQq1d",
-	"ScHPCzRF4cjyjvAAA1JoiVSsrEu5sr7RBAIPUGmvE1xbjVYj11ZI5FQyiOGGvyIgqel5DA1D9Y4/ddG4",
-	"j5OdOibNFGK4y7Rp+QhHX0vBdZjI9SgKnuAGuU+kUmYs8amNbR0GFSR2J2Ywv9Qk/AwCaaoU7QfOMwYA",
-	"Wx3b6putvpx8fTh+89ZW++Pj53Z4BD6yQ4vMXAncMkxhGWpBvLO77+3ud+8NXeQ5Vf1acKNnB6Ofh3Z4",
-	"ZKvHzjW0q/3YHdt2SUAKXSP9LYXUoJckWA+1uSnS/pWYLV2jBaLa4efxh0+nL54CmV+p6XosSB7tPZlP",
-	"u7A7ocb8fpQh8C9cNku39lWY3+M6IBeHffLj5emjPTs8tMNX54Vq3v63PGer/QnUerf5PFTukYB4awCF",
-	"yiCGTCQ06wlt4rVoLYKyPc1b4pKPvw5ehzbh4eE0dyL6RmW7/B0AAP//ylCUfmEGAAA=",
+	"H4sIAAAAAAAC/8xVTWsUMRj+K+XVY+iueilzq9bDgodC60n2EGfebtPuJDHJFJYy4G4vgqilSGtREDz4",
+	"jXrwoKD2x6Rd6r+QJN2P7szUll72NCH7fjzP8z5vdhNikUrBkRsN0SboeBVT6o+3lRLKHaQSEpVh6K9j",
+	"kaD7mo5EiEAbxXgLcgIpak1bZb/lBBQ+yJjCBKJ7ocIovkkG8eL+GsbG1Vqmer3YOkEdKyYNE7wUAUtK",
+	"r7WhJvMFripcgQiu1EakayeMa67lUojMCRhm2uegwhIYxJJT8IZdq9gtDUEhz1JXy4hEAAHGF5VoKdTa",
+	"lRR8XKAhCkeWrwgPMCCFZZGImXkpZ+YXG0BgA5X2OsG12fps3bUVEjmVDCK44a8ISGpWPYaaoXrdn1po",
+	"3MfJTh2TRgIR3GHaLPsIR19LwXWYyPV6PXiCG+Q+kUrZZrFPra3pMKggsTsxg+m5JuFnEEhTpWgncD5l",
+	"ALC9A9v7aXtfD388PH77zvZ2jg+e2+4++MgVmrXNhcCdhSksQymI93brg9365b2hszSlqlMK7ujZ7tGf",
+	"Pdvdt73HzjW0pf3YHdtmTkAKXSL9LYXUoJckWA+1uSmSzoWYnblGFaLa7pfjj5/7L54CKa7UcD0qko+2",
+	"nxTTJnYn1CjuRx4CL+Gy03RLX4XiHpcBmRz24e9X/Ufbtrtnu6/HhWosTJfnbG9nALXcbTk5Wfnapvs0",
+	"ktzrlpUY8K5MRgaUVNEUDSpXrHL6jQX/jkHkHxggwGnqhA2tYFx6ozIkY3pMjqk5Raa/1P/IVC7K/1/h",
+	"ovn6L7/3d79N7sDo7a105CCxwpEuD9XGwFqZakMEbRHT9qrQJpqrz9XB2eEk74wRfvq7+ya0CX+FY+6D",
+	"vJn/CwAA//9NK8SR8wgAAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

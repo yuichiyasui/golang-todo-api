@@ -36,5 +36,18 @@ type CreateTaskJSONBody struct {
 	Title string `json:"title"`
 }
 
+// UpdateTaskJSONBody defines parameters for UpdateTask.
+type UpdateTaskJSONBody struct {
+	// Description タスクの説明
+	Description *string     `json:"description,omitempty"`
+	Status      *TaskStatus `json:"status,omitempty"`
+
+	// Title タスク名
+	Title string `json:"title"`
+}
+
 // CreateTaskJSONRequestBody defines body for CreateTask for application/json ContentType.
 type CreateTaskJSONRequestBody CreateTaskJSONBody
+
+// UpdateTaskJSONRequestBody defines body for UpdateTask for application/json ContentType.
+type UpdateTaskJSONRequestBody UpdateTaskJSONBody

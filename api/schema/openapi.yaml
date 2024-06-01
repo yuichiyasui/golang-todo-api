@@ -66,6 +66,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /tasks/{taskId}:
+    put:
+      summary: タスクを更新する
+      tags:
+        - task
+      operationId: updateTask
+      parameters:
+        - name: taskId
+          in: path
+          description: タスクID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: タスク名
+                description:
+                  type: string
+                  description: タスクの説明
+                status:
+                  $ref: "#/components/schemas/TaskStatus"
+              required:
+                - title
+      responses:
+        '200':
+          description: 更新したタスクを返す
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
 
 components:
   schemas:

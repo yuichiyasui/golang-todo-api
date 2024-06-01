@@ -5,6 +5,7 @@ import (
 	"api/model"
 	"context"
 	"database/sql"
+	"strconv"
 
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
@@ -13,6 +14,7 @@ import (
 type TasksRepositoryInterface interface {
 	GetTasks(ctx context.Context) (model.TaskSlice, error)
 	CreateTask(ctx context.Context, task domain.Task) (*model.Task, error)
+	UpdateTask(ctx context.Context, task domain.Task) (*model.Task, error)
 }
 
 type TasksRepository struct {
@@ -56,4 +58,38 @@ func (r *TasksRepository) CreateTask(ctx context.Context, task domain.Task) (*mo
 	}
 
 	return &t, nil
+}
+
+func (r *TasksRepository) UpdateTask(ctx context.Context, task domain.Task) (*model.Task, error) {
+	taskId, err := strconv.ParseUint(task.Id, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := model.FindTask(ctx, r.db, taskId)
+	if err != nil {
+		return nil, err
+	}
+
+	m.Title = task.Title
+	m.Description = null.StringFrom(task.Description)
+	m.Status = convertStatus(task.Status)
+
+	_, err = m.Update(ctx, r.db, boil.Infer())
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+func convertStatus(status domain.TaskStatus) model.TasksStatus {
+	switch status {
+	case domain.TaskStatusInProgress:
+		return model.TasksStatusIN_PROGRESS
+	case domain.TaskStatusDone:
+		return model.TasksStatusDONE
+	default:
+		return model.TasksStatusTODO
+	}
 }
