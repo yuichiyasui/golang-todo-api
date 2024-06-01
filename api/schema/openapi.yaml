@@ -67,6 +67,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
   /tasks/{taskId}:
+    get:
+      summary: タスク詳細を取得する
+      tags:
+        - task
+      operationId: getTaskDetail
+      parameters:
+        - name: taskId
+          in: path
+          description: タスクID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: タスク詳細を返す
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        default:
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     put:
       summary: タスクを更新する
       tags:
@@ -102,6 +127,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+        default:
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:

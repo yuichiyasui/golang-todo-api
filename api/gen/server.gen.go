@@ -29,6 +29,9 @@ type ServerInterface interface {
 	// タスクを作成する
 	// (POST /tasks)
 	CreateTask(c *gin.Context)
+	// タスク詳細を取得する
+	// (GET /tasks/{taskId})
+	GetTaskDetail(c *gin.Context, taskId string)
 	// タスクを更新する
 	// (PUT /tasks/{taskId})
 	UpdateTask(c *gin.Context, taskId string)
@@ -67,6 +70,30 @@ func (siw *ServerInterfaceWrapper) CreateTask(c *gin.Context) {
 	}
 
 	siw.Handler.CreateTask(c)
+}
+
+// GetTaskDetail operation middleware
+func (siw *ServerInterfaceWrapper) GetTaskDetail(c *gin.Context) {
+
+	var err error
+
+	// ------------- Path parameter "taskId" -------------
+	var taskId string
+
+	err = runtime.BindStyledParameter("simple", false, "taskId", c.Param("taskId"), &taskId)
+	if err != nil {
+		siw.ErrorHandler(c, fmt.Errorf("Invalid format for parameter taskId: %w", err), http.StatusBadRequest)
+		return
+	}
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.GetTaskDetail(c, taskId)
 }
 
 // UpdateTask operation middleware
@@ -122,6 +149,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 
 	router.GET(options.BaseURL+"/tasks", wrapper.ListTasks)
 	router.POST(options.BaseURL+"/tasks", wrapper.CreateTask)
+	router.GET(options.BaseURL+"/tasks/:taskId", wrapper.GetTaskDetail)
 	router.PUT(options.BaseURL+"/tasks/:taskId", wrapper.UpdateTask)
 }
 
@@ -184,6 +212,35 @@ func (response CreateTaskdefaultJSONResponse) VisitCreateTaskResponse(w http.Res
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type GetTaskDetailRequestObject struct {
+	TaskId string `json:"taskId"`
+}
+
+type GetTaskDetailResponseObject interface {
+	VisitGetTaskDetailResponse(w http.ResponseWriter) error
+}
+
+type GetTaskDetail200JSONResponse Task
+
+func (response GetTaskDetail200JSONResponse) VisitGetTaskDetailResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GetTaskDetaildefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response GetTaskDetaildefaultJSONResponse) VisitGetTaskDetailResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 type UpdateTaskRequestObject struct {
 	TaskId string `json:"taskId"`
 	Body   *UpdateTaskJSONRequestBody
@@ -202,6 +259,18 @@ func (response UpdateTask200JSONResponse) VisitUpdateTaskResponse(w http.Respons
 	return json.NewEncoder(w).Encode(response)
 }
 
+type UpdateTaskdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response UpdateTaskdefaultJSONResponse) VisitUpdateTaskResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// タスク一覧を取得する
@@ -210,6 +279,9 @@ type StrictServerInterface interface {
 	// タスクを作成する
 	// (POST /tasks)
 	CreateTask(ctx context.Context, request CreateTaskRequestObject) (CreateTaskResponseObject, error)
+	// タスク詳細を取得する
+	// (GET /tasks/{taskId})
+	GetTaskDetail(ctx context.Context, request GetTaskDetailRequestObject) (GetTaskDetailResponseObject, error)
 	// タスクを更新する
 	// (PUT /tasks/{taskId})
 	UpdateTask(ctx context.Context, request UpdateTaskRequestObject) (UpdateTaskResponseObject, error)
@@ -285,6 +357,33 @@ func (sh *strictHandler) CreateTask(ctx *gin.Context) {
 	}
 }
 
+// GetTaskDetail operation middleware
+func (sh *strictHandler) GetTaskDetail(ctx *gin.Context, taskId string) {
+	var request GetTaskDetailRequestObject
+
+	request.TaskId = taskId
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GetTaskDetail(ctx, request.(GetTaskDetailRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GetTaskDetail")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(GetTaskDetailResponseObject); ok {
+		if err := validResponse.VisitGetTaskDetailResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // UpdateTask operation middleware
 func (sh *strictHandler) UpdateTask(ctx *gin.Context, taskId string) {
 	var request UpdateTaskRequestObject
@@ -323,18 +422,18 @@ func (sh *strictHandler) UpdateTask(ctx *gin.Context, taskId string) {
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8xVTWsUMRj+K+XVY+iueilzq9bDgodC60n2EGfebtPuJDHJFJYy4G4vgqilSGtREDz4",
-	"jXrwoKD2x6Rd6r+QJN2P7szUll72NCH7fjzP8z5vdhNikUrBkRsN0SboeBVT6o+3lRLKHaQSEpVh6K9j",
-	"kaD7mo5EiEAbxXgLcgIpak1bZb/lBBQ+yJjCBKJ7ocIovkkG8eL+GsbG1Vqmer3YOkEdKyYNE7wUAUtK",
-	"r7WhJvMFripcgQiu1EakayeMa67lUojMCRhm2uegwhIYxJJT8IZdq9gtDUEhz1JXy4hEAAHGF5VoKdTa",
-	"lRR8XKAhCkeWrwgPMCCFZZGImXkpZ+YXG0BgA5X2OsG12fps3bUVEjmVDCK44a8ISGpWPYaaoXrdn1po",
-	"3MfJTh2TRgIR3GHaLPsIR19LwXWYyPV6PXiCG+Q+kUrZZrFPra3pMKggsTsxg+m5JuFnEEhTpWgncD5l",
-	"ALC9A9v7aXtfD388PH77zvZ2jg+e2+4++MgVmrXNhcCdhSksQymI93brg9365b2hszSlqlMK7ujZ7tGf",
-	"Pdvdt73HzjW0pf3YHdtmTkAKXSL9LYXUoJckWA+1uSmSzoWYnblGFaLa7pfjj5/7L54CKa7UcD0qko+2",
-	"nxTTJnYn1CjuRx4CL+Gy03RLX4XiHpcBmRz24e9X/Ufbtrtnu6/HhWosTJfnbG9nALXcbTk5Wfnapvs0",
-	"ktzrlpUY8K5MRgaUVNEUDSpXrHL6jQX/jkHkHxggwGnqhA2tYFx6ozIkY3pMjqk5Raa/1P/IVC7K/1/h",
-	"ovn6L7/3d79N7sDo7a105CCxwpEuD9XGwFqZakMEbRHT9qrQJpqrz9XB2eEk74wRfvq7+ya0CX+FY+6D",
-	"vJn/CwAA//9NK8SR8wgAAA==",
+	"H4sIAAAAAAAC/8xWQWtTSxT+K+W8t7w0ee9tyt31WZGAi0LrSrIY7z1Np713ZpyZWwjlgrndCKKWIq1F",
+	"QXChVkULdqGg9sdMG+O/kJlp0jS5SVu7MKs7TM6c833nfOcj6xDxVHCGTCsI10FFy5gSd7wuJZf2ICQX",
+	"KDVFdx3xGO1XNwVCCEpLyhqQB5CiUqRR9lsegMS7GZUYQ3jbZziNrwfdeH5nBSNtcy0StTpcOkYVSSo0",
+	"5awUAY1Lr5UmOnMJ/pa4BCH8VTklXTlhXLElF3xkHoCmOrkAFRpDNzY4A69XdRS7hR4oZFlqc2kecwiA",
+	"snnJGxKVsik5629QD4Uly5a4A+iRwiKP+dSsEFOz8zUIYA2lcn2Cf6ar01VblgtkRFAI4T93FYAgetlh",
+	"qGiiVt2pgdp+bNuJZVKLIYSbVOlFF2HpK8GZ8hP5t1r1mmAamXtIhEho5J5WVpQflG+xPVGN6YUm4Wbg",
+	"SRMpSdNzPiMAMMWhKb6Y4uPR53udV69NsdU5fGJau+Ail0iW6EuBG4fJL0MpiDdmY89sfHXaUFmaEtks",
+	"BXf8ePv4+45p7ZrigVUNaSg3dsu2ngcguCpp/TWJRKNriZceKv0/j5uXYjZ2jUY01bQ+dN6+bz99BMHw",
+	"SvXWY8Tj482Hw88GdsfnGN6P3AdeQWVn6Za6wvAelwEZHPbRt+ft+5umtWNaL/obVZubLM2ZYqsLtVxt",
+	"eXCy8pV1+6nF+cjdv4Fu9edQE5o4z5AkRY3S5hspgNqcszIIncdAAIyktre+GvR3X8sMg76WDE6qfkU1",
+	"nG81Y6yls/fpx8H+hFpLD9y51pKVDPaWiE+d5c9MdULc7Ep/ECbSAX9H8+1nB+3t/UFzm0zlm2KrC3eE",
+	"wdl3KNe6gs5kAiEkPCLJMlc6nKnOVMGK8OTdGOG8+7n90pfx/6z6NA95Pf8VAAD//2PnOtRCCwAA",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

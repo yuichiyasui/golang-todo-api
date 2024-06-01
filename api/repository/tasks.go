@@ -14,6 +14,7 @@ import (
 //go:generate mockgen -source=./tasks.go -destination=./tasks_mock.go -package=repository
 type TasksRepositoryInterface interface {
 	GetTasks(ctx context.Context) ([]*task.Task, error)
+	FindById(ctx context.Context, taskId string) (*task.Task, error)
 	CreateTask(ctx context.Context, input task.Task) (*task.Task, error)
 	UpdateTask(ctx context.Context, input task.Task) (*task.Task, error)
 }
@@ -49,6 +50,30 @@ func (r *TasksRepository) GetTasks(ctx context.Context) ([]*task.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (r *TasksRepository) FindById(ctx context.Context, taskId string) (*task.Task, error) {
+	id, err := strconv.ParseUint(taskId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := model.FindTask(ctx, r.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := task.New(
+		strconv.FormatUint(m.ID, 10),
+		m.Title,
+		m.Description.String,
+		task.TaskStatus(m.Status.String()),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &t, nil
 }
 
 func (r *TasksRepository) CreateTask(ctx context.Context, input task.Task) (*task.Task, error) {
