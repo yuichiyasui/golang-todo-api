@@ -31,19 +31,20 @@ func (t *Task) Status() TaskStatus {
 	return t.status
 }
 
-func New(id string, title string, description string, status TaskStatus) (Task, error) {
-	var sts TaskStatus
+func convertStatus(status TaskStatus) TaskStatus {
 	switch status {
 	case TaskStatusTodo, TaskStatusInProgress, TaskStatusDone:
-		sts = status
+		return status
 	default:
-		sts = TaskStatusTodo
+		return TaskStatusTodo
 	}
+}
 
+func New(id string, title string, description string, status TaskStatus) (Task, error) {
 	return Task{
 		id:          id,
 		title:       title,
 		description: description,
-		status:      sts,
+		status:      convertStatus(status),
 	}, nil
 }
