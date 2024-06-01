@@ -8,7 +8,7 @@ import (
 
 type Server struct {
 	db              *sql.DB
-	tasksRepository repository.TasksRepository
+	tasksRepository repository.TasksRepositoryInterface
 }
 
 // Make sure we conform to StrictServerInterface
@@ -23,6 +23,6 @@ func NewServer(db *sql.DB) (*Server, error) {
 
 	return &Server{
 		db:              db,
-		tasksRepository: *tasksRepo,
+		tasksRepository: tasksRepo,
 	}, nil
 }

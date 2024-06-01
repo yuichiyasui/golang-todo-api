@@ -7,6 +7,8 @@ install:
 	go install github.com/volatiletech/sqlboiler/v4@v4.16.2
 	go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-mysql@v4.16.2
 
+	# mockgen
+	go install github.com/golang/mock/mockgen@v1.6.0
 .PHONY: gen-api
 gen-api:
 	oapi-codegen -config api/server.config.yaml api/schema/openapi.yaml

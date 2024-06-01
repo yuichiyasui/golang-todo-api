@@ -1,12 +1,12 @@
-package domain
+package task
 
 type TaskStatus string
 
 type Task struct {
-	Id          string
-	Title       string
-	Description string
-	Status      TaskStatus
+	id          string
+	title       string
+	description string
+	status      TaskStatus
 }
 
 const (
@@ -14,6 +14,22 @@ const (
 	TaskStatusInProgress TaskStatus = "IN_PROGRESS"
 	TaskStatusDone       TaskStatus = "DONE"
 )
+
+func (t *Task) Id() string {
+	return t.id
+}
+
+func (t *Task) Title() string {
+	return t.title
+}
+
+func (t *Task) Description() string {
+	return t.description
+}
+
+func (t *Task) Status() TaskStatus {
+	return t.status
+}
 
 func New(id string, title string, description string, status TaskStatus) (Task, error) {
 	var sts TaskStatus
@@ -25,9 +41,9 @@ func New(id string, title string, description string, status TaskStatus) (Task, 
 	}
 
 	return Task{
-		Id:          id,
-		Title:       title,
-		Description: description,
-		Status:      sts,
+		id:          id,
+		title:       title,
+		description: description,
+		status:      sts,
 	}, nil
 }

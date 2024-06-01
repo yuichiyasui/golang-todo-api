@@ -1,11 +1,10 @@
 package handler
 
 import (
-	"api/domain"
+	"api/domain/task"
 	"api/gen"
 	"context"
 	"fmt"
-	"strconv"
 )
 
 func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestObject) (gen.UpdateTaskResponseObject, error) {
@@ -14,7 +13,7 @@ func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestOb
 		return nil, err
 	}
 
-	task, err := domain.New(
+	input, err := task.New(
 		request.TaskId,
 		request.Body.Title,
 		*request.Body.Description,
@@ -24,29 +23,29 @@ func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestOb
 		return nil, err
 	}
 
-	updatedTask, err := s.tasksRepository.UpdateTask(ctx, task)
+	updatedTask, err := s.tasksRepository.UpdateTask(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
 	res := gen.UpdateTask200JSONResponse{
-		Id:          strconv.FormatUint(updatedTask.ID, 10),
-		Title:       updatedTask.Title,
-		Description: updatedTask.Description.String,
-		Status:      gen.TaskStatus(updatedTask.Status),
+		Id:          updatedTask.Id(),
+		Title:       updatedTask.Title(),
+		Description: updatedTask.Description(),
+		Status:      gen.TaskStatus(updatedTask.Status()),
 	}
 
 	return res, nil
 }
 
-func convertDomainStatus(status gen.TaskStatus) (domain.TaskStatus, error) {
+func convertDomainStatus(status gen.TaskStatus) (task.TaskStatus, error) {
 	switch status {
 	case gen.Todo:
-		return domain.TaskStatusTodo, nil
+		return task.TaskStatusTodo, nil
 	case gen.InProgress:
-		return domain.TaskStatusInProgress, nil
+		return task.TaskStatusInProgress, nil
 	case gen.Done:
-		return domain.TaskStatusDone, nil
+		return task.TaskStatusDone, nil
 	default:
 		return "", fmt.Errorf("不正なstatusです")
 	}

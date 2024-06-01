@@ -1,15 +1,14 @@
 package handler
 
 import (
-	"api/domain"
+	"api/domain/task"
 	"api/gen"
 	"context"
 	"net/http"
-	"strconv"
 )
 
 func (s *Server) CreateTask(ctx context.Context, request gen.CreateTaskRequestObject) (gen.CreateTaskResponseObject, error) {
-	t, err := domain.New(
+	input, err := task.New(
 		"",
 		request.Body.Title,
 		*request.Body.Description,
@@ -25,7 +24,7 @@ func (s *Server) CreateTask(ctx context.Context, request gen.CreateTaskRequestOb
 		}, err
 	}
 
-	task, err := s.tasksRepository.CreateTask(ctx, t)
+	createdTask, err := s.tasksRepository.CreateTask(ctx, input)
 	if err != nil {
 		return gen.CreateTaskdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,
@@ -37,6 +36,6 @@ func (s *Server) CreateTask(ctx context.Context, request gen.CreateTaskRequestOb
 	}
 
 	return gen.CreateTask200JSONResponse{
-		Id: strconv.FormatUint(task.ID, 10),
+		Id: createdTask.Id(),
 	}, nil
 }
