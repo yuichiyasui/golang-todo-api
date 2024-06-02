@@ -32,8 +32,8 @@ func TestListTasks(t *testing.T) {
 			task.TaskStatusInProgress,
 		)
 		mockTasks := []*task.Task{
-			&task1,
-			&task2,
+			task1,
+			task2,
 		}
 
 		mockCtrl := gomock.NewController(t)

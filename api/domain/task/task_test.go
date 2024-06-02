@@ -15,7 +15,7 @@ func TestNew(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    Task
+		want    *Task
 		wantErr bool
 	}{
 		{
@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 				description: "タスク説明",
 				status:      "TODO",
 			},
-			want: Task{
+			want: &Task{
 				id:          "1",
 				title:       "タスク名",
 				description: "タスク説明",
@@ -42,13 +42,46 @@ func TestNew(t *testing.T) {
 				description: "タスク説明",
 				status:      "invalid_status",
 			},
-			want: Task{
+			want: &Task{
 				id:          "1",
 				title:       "タスク名",
 				description: "タスク説明",
 				status:      "TODO",
 			},
 			wantErr: false,
+		},
+		{
+			name: "titleが空の場合エラーを返す",
+			args: args{
+				id:          "1",
+				title:       "",
+				description: "タスク説明",
+				status:      "TODO",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "titleが30文字を超える場合エラーを返す",
+			args: args{
+				id:          "1",
+				title:       makeText(31),
+				description: "タスク説明",
+				status:      "TODO",
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "descriptionが500文字を超える場合エラーを返す",
+			args: args{
+				id:          "1",
+				title:       "タスク名",
+				description: makeText(501),
+				status:      "TODO",
+			},
+			want:    nil,
+			wantErr: true,
 		},
 	}
 
@@ -64,4 +97,12 @@ func TestNew(t *testing.T) {
 			}
 		})
 	}
+}
+
+func makeText(length int) string {
+	var text string
+	for i := 0; i < length; i++ {
+		text += "a"
+	}
+	return text
 }
