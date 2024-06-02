@@ -46,7 +46,7 @@ func (r *TasksRepository) GetTasks(ctx context.Context) ([]*task.Task, error) {
 			return nil, err
 		}
 
-		tasks = append(tasks, &d)
+		tasks = append(tasks, d)
 	}
 
 	return tasks, nil
@@ -73,7 +73,7 @@ func (r *TasksRepository) FindById(ctx context.Context, taskId string) (*task.Ta
 		return nil, err
 	}
 
-	return &t, nil
+	return t, nil
 }
 
 func (r *TasksRepository) CreateTask(ctx context.Context, input task.Task) (*task.Task, error) {
@@ -109,7 +109,7 @@ func (r *TasksRepository) CreateTask(ctx context.Context, input task.Task) (*tas
 		return nil, err
 	}
 
-	return &createdTask, nil
+	return createdTask, nil
 }
 
 func (r *TasksRepository) UpdateTask(ctx context.Context, input task.Task) (*task.Task, error) {
@@ -147,7 +147,7 @@ func (r *TasksRepository) UpdateTask(ctx context.Context, input task.Task) (*tas
 		return nil, err
 	}
 
-	return &updatedTask, nil
+	return updatedTask, nil
 }
 
 func convertStatus(status task.TaskStatus) model.TasksStatus {

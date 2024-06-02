@@ -23,7 +23,7 @@ func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestOb
 		return nil, err
 	}
 
-	updatedTask, err := s.tasksRepository.UpdateTask(ctx, input)
+	updatedTask, err := s.tasksRepository.UpdateTask(ctx, *input)
 	if err != nil {
 		return nil, err
 	}
