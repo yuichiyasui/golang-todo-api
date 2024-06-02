@@ -9,34 +9,44 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/utils";
 import { createLazyFileRoute, useRouter, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
-type FormData = {
-  title: string;
-  description: string;
-};
-
-const titleFieldId = "title";
-const titleFieldErrorId = "title-error";
-const descriptionFieldId = "description";
-const descriptionFieldErrorId = "description-error";
+const formSchema = z.object({
+  title: z
+    .string()
+    .min(1, { message: "タスク名を入力してください" })
+    .max(30, "タスク名を30文字以内で入力してください"),
+  description: z
+    .string()
+    .max(500, { message: "タスク内容を500文字以内で入力してください" }),
+});
+type FormValues = z.infer<typeof formSchema>;
 
 const Page = () => {
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({
+  const form = useForm<FormValues>({
     mode: "onBlur",
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+    },
   });
   const router = useRouter();
 
-  const createTask = handleSubmit(async (data) => {
+  const createTask = form.handleSubmit(async (data) => {
     try {
       await client.POST("/tasks", {
         body: {
@@ -46,9 +56,13 @@ const Page = () => {
       });
       router.navigate({ to: "/" });
     } catch (error) {
-      setError("root", { message: "通信エラーが発生しました" });
+      form.setError("root", { message: "通信エラーが発生しました" });
     }
   });
+
+  const {
+    formState: { errors, isSubmitting },
+  } = form;
 
   return (
     <main className="p-4">
@@ -67,66 +81,50 @@ const Page = () => {
       </Breadcrumb>
 
       <h1 className={cn("mb-3", "text-lg", "font-bold")}>タスクの作成</h1>
-      <form onSubmit={createTask} className={cn("flex", "flex-col", "gap-y-4")}>
-        <div>
-          <Label htmlFor={titleFieldId}>タスク名</Label>
-          <Input
-            {...register("title", {
-              required: {
-                value: true,
-                message: "タスク名を入力してください",
-              },
-              maxLength: {
-                value: 30,
-                message: "タスク名を30文字以内で入力してください",
-              },
-            })}
-            id={titleFieldId}
-            aria-errormessage={titleFieldErrorId}
-            aria-required
-            aria-invalid={!!errors.title}
-          />
-          <p
-            id={titleFieldErrorId}
-            aria-live="polite"
-            className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
-          >
-            {errors.title?.message}
-          </p>
-        </div>
-        <div>
-          <Label htmlFor={descriptionFieldId}>タスク内容</Label>
-          <Textarea
-            {...register("description", {
-              maxLength: {
-                value: 500,
-                message: "タスク内容を500文字以内で入力してください",
-              },
-            })}
-            id={descriptionFieldId}
-            aria-errormessage={descriptionFieldErrorId}
-            aria-invalid={!!errors.description}
-          />
-          <p
-            id={descriptionFieldErrorId}
-            aria-live="polite"
-            className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
-          >
-            {errors.description?.message}
-          </p>
-        </div>
-        <div>
-          <Button type="submit" disabled={isSubmitting}>
-            作成
-          </Button>
-        </div>
-        <p
-          aria-live="assertive"
-          className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
+      <Form {...form}>
+        <form
+          onSubmit={createTask}
+          className={cn("flex", "flex-col", "gap-y-4")}
         >
-          {errors.root?.message}
-        </p>
-      </form>
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>タスク名</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>タスク内容</FormLabel>
+                <FormControl>
+                  <Textarea {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div>
+            <Button type="submit" disabled={isSubmitting}>
+              作成
+            </Button>
+          </div>
+          <p
+            aria-live="assertive"
+            className={cn("text-red-500", "text-sm", "empty:mt-0", "mt-2")}
+          >
+            {errors.root?.message}
+          </p>
+        </form>
+      </Form>
     </main>
   );
 };
