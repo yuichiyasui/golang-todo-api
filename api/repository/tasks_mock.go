@@ -35,21 +35,6 @@ func (m *MockTasksRepositoryInterface) EXPECT() *MockTasksRepositoryInterfaceMoc
 	return m.recorder
 }
 
-// CreateTask mocks base method.
-func (m *MockTasksRepositoryInterface) CreateTask(ctx context.Context, input task.Task) (*task.Task, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTask", ctx, input)
-	ret0, _ := ret[0].(*task.Task)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateTask indicates an expected call of CreateTask.
-func (mr *MockTasksRepositoryInterfaceMockRecorder) CreateTask(ctx, input interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockTasksRepositoryInterface)(nil).CreateTask), ctx, input)
-}
-
 // FindById mocks base method.
 func (m *MockTasksRepositoryInterface) FindById(ctx context.Context, taskId string) (*task.Task, error) {
 	m.ctrl.T.Helper()
@@ -78,6 +63,21 @@ func (m *MockTasksRepositoryInterface) GetTasks(ctx context.Context) ([]*task.Ta
 func (mr *MockTasksRepositoryInterfaceMockRecorder) GetTasks(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTasks", reflect.TypeOf((*MockTasksRepositoryInterface)(nil).GetTasks), ctx)
+}
+
+// Save mocks base method.
+func (m *MockTasksRepositoryInterface) Save(ctx context.Context, input task.Task) (*task.Task, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Save", ctx, input)
+	ret0, _ := ret[0].(*task.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Save indicates an expected call of Save.
+func (mr *MockTasksRepositoryInterfaceMockRecorder) Save(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockTasksRepositoryInterface)(nil).Save), ctx, input)
 }
 
 // UpdateTask mocks base method.
