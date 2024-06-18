@@ -15,8 +15,8 @@ import (
 type TasksRepositoryInterface interface {
 	GetTasks(ctx context.Context) ([]*task.Task, error)
 	FindById(ctx context.Context, taskId string) (*task.Task, error)
-	CreateTask(ctx context.Context, input task.Task) (*task.Task, error)
 	UpdateTask(ctx context.Context, input task.Task) (*task.Task, error)
+	Save(ctx context.Context, input task.Task) (*task.Task, error)
 }
 
 type TasksRepository struct {
@@ -76,7 +76,7 @@ func (r *TasksRepository) FindById(ctx context.Context, taskId string) (*task.Ta
 	return t, nil
 }
 
-func (r *TasksRepository) CreateTask(ctx context.Context, input task.Task) (*task.Task, error) {
+func (r *TasksRepository) createTask(ctx context.Context, input task.Task) (*task.Task, error) {
 	var status model.TasksStatus
 	switch input.Status() {
 	case task.TaskStatusTodo:
@@ -148,6 +148,14 @@ func (r *TasksRepository) UpdateTask(ctx context.Context, input task.Task) (*tas
 	}
 
 	return updatedTask, nil
+}
+
+func (r *TasksRepository) Save(ctx context.Context, input task.Task) (*task.Task, error) {
+	if input.Id() == "" {
+		return r.createTask(ctx, input)
+	}
+
+	return r.UpdateTask(ctx, input)
 }
 
 func convertStatus(status task.TaskStatus) model.TasksStatus {
