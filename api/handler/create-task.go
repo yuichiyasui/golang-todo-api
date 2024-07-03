@@ -24,7 +24,7 @@ func (s *Server) CreateTask(ctx context.Context, request gen.CreateTaskRequestOb
 		}, err
 	}
 
-	createdTask, err := s.tasksRepository.CreateTask(ctx, *input)
+	createdTask, err := s.tasksRepository.Save(ctx, *input)
 	if err != nil {
 		return gen.CreateTaskdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,

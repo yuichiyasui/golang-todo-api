@@ -1,0 +1,26 @@
+name: API CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./api/go.mod
+      - name: Install dependencies
+        run: |
+          cd api && go mod download
+      - name: Testing
+        run: |
+          cd api && go test ./...
+      - name: Build
+        run: |
+          cd api && go build
