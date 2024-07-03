@@ -1,6 +1,6 @@
 # golang-todo-api
 
-Golangでのコーディングの実践を目的としたTODOアプリのAPI
+Golang でのコーディングの実践を目的とした TODO アプリの API
 
 ## Getting Started
 
@@ -12,8 +12,8 @@ make install
 
 ## Applications Port
 
-| app      | port |
-| -------- | ---- |
-| api 　　　| 8080 |
-| frontend | 5173 |
-| database | 3306 |
+| app        | port |
+| ---------- | ---- |
+| api 　　　 | 8080 |
+| frontend   | 5173 |
+| database   | 3306 |
