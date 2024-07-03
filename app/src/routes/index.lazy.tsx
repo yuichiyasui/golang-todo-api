@@ -39,24 +39,36 @@ const Page = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((t) => (
-              <TableRow key={t.id}>
-                <TableCell>{t.id}</TableCell>
-                <TableCell>
-                  <p>
-                    <Link to={`/$taskId`} params={{ taskId: t.id }}>
-                      {t.title}
-                    </Link>
-                  </p>
-                  {t.description && (
-                    <p className={cn("text-xs", "mt-1", "text-slate-400")}>
-                      {t.description}
+            {(() => {
+              if (tasks.length === 0) {
+                return (
+                  <TableRow>
+                    <TableCell colSpan={3} className={cn("text-center")}>
+                      タスクがありません
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+
+              return tasks.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell>{t.id}</TableCell>
+                  <TableCell>
+                    <p>
+                      <Link to={`/$taskId`} params={{ taskId: t.id }}>
+                        {t.title}
+                      </Link>
                     </p>
-                  )}
-                </TableCell>
-                <TableCell>{t.status}</TableCell>
-              </TableRow>
-            ))}
+                    {t.description && (
+                      <p className={cn("text-xs", "mt-1", "text-slate-400")}>
+                        {t.description}
+                      </p>
+                    )}
+                  </TableCell>
+                  <TableCell>{t.status}</TableCell>
+                </TableRow>
+              ));
+            })()}
           </TableBody>
         </Table>
       </div>

@@ -133,7 +133,7 @@ export interface operations {
           title: string;
           /** @description タスクの説明 */
           description?: string;
-          status?: components["schemas"]["TaskStatus"];
+          status: components["schemas"]["TaskStatus"];
         };
       };
     };
