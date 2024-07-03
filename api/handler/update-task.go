@@ -36,7 +36,7 @@ func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestOb
 		}, err
 	}
 
-	updatedTask, err := s.tasksRepository.UpdateTask(ctx, *input)
+	updatedTask, err := s.tasksRepository.Save(ctx, *input)
 	if err != nil {
 		return gen.UpdateTaskdefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,

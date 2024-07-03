@@ -15,7 +15,6 @@ import (
 type TasksRepositoryInterface interface {
 	GetTasks(ctx context.Context) ([]*task.Task, error)
 	FindById(ctx context.Context, taskId string) (*task.Task, error)
-	UpdateTask(ctx context.Context, input task.Task) (*task.Task, error)
 	Save(ctx context.Context, input task.Task) (*task.Task, error)
 }
 
@@ -112,7 +111,7 @@ func (r *TasksRepository) createTask(ctx context.Context, input task.Task) (*tas
 	return createdTask, nil
 }
 
-func (r *TasksRepository) UpdateTask(ctx context.Context, input task.Task) (*task.Task, error) {
+func (r *TasksRepository) updateTask(ctx context.Context, input task.Task) (*task.Task, error) {
 	taskId, err := strconv.ParseUint(input.Id(), 10, 64)
 	if err != nil {
 		return nil, err
@@ -155,7 +154,7 @@ func (r *TasksRepository) Save(ctx context.Context, input task.Task) (*task.Task
 		return r.createTask(ctx, input)
 	}
 
-	return r.UpdateTask(ctx, input)
+	return r.updateTask(ctx, input)
 }
 
 func convertStatus(status task.TaskStatus) model.TasksStatus {

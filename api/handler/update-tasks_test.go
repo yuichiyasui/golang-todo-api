@@ -32,7 +32,7 @@ func TestUpdateTasks(t *testing.T) {
 			name: "タスクを更新して更新後のタスクを返す",
 			mockFunc: func(m *repository.MockTasksRepositoryInterface) {
 				obj, _ := task.New("1", "title", "タスク説明", task.TaskStatusInProgress)
-				m.EXPECT().UpdateTask(gomock.Any(), *obj).Return(obj, nil)
+				m.EXPECT().Save(gomock.Any(), *obj).Return(obj, nil)
 			},
 			request: gen.UpdateTaskRequestObject{
 				TaskId: "1",
@@ -84,7 +84,7 @@ func TestUpdateTasks(t *testing.T) {
 		{
 			name: "タスクの更新に失敗した場合、ステータス500を返す",
 			mockFunc: func(m *repository.MockTasksRepositoryInterface) {
-				m.EXPECT().UpdateTask(gomock.Any(), gomock.Any()).Return(nil, fmt.Errorf("error message"))
+				m.EXPECT().Save(gomock.Any(), gomock.Any()).Return(nil, fmt.Errorf("error message"))
 			},
 			request: gen.UpdateTaskRequestObject{
 				TaskId: "1",
