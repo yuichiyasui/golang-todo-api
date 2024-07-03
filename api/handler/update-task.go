@@ -5,12 +5,19 @@ import (
 	"api/gen"
 	"context"
 	"fmt"
+	"net/http"
 )
 
 func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestObject) (gen.UpdateTaskResponseObject, error) {
-	sts, err := convertDomainStatus(*request.Body.Status)
+	sts, err := convertDomainStatus(request.Body.Status)
 	if err != nil {
-		return nil, err
+		return gen.UpdateTaskdefaultJSONResponse{
+			StatusCode: http.StatusBadRequest,
+			Body: gen.Error{
+				Code:    "",
+				Message: err.Error(),
+			},
+		}, err
 	}
 
 	input, err := task.New(
@@ -20,12 +27,24 @@ func (s *Server) UpdateTask(ctx context.Context, request gen.UpdateTaskRequestOb
 		sts,
 	)
 	if err != nil {
-		return nil, err
+		return gen.UpdateTaskdefaultJSONResponse{
+			StatusCode: http.StatusBadRequest,
+			Body: gen.Error{
+				Code:    "",
+				Message: err.Error(),
+			},
+		}, err
 	}
 
 	updatedTask, err := s.tasksRepository.UpdateTask(ctx, *input)
 	if err != nil {
-		return nil, err
+		return gen.UpdateTaskdefaultJSONResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body: gen.Error{
+				Code:    "",
+				Message: err.Error(),
+			},
+		}, err
 	}
 
 	res := gen.UpdateTask200JSONResponse{

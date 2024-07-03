@@ -120,6 +120,7 @@ paths:
                   $ref: "#/components/schemas/TaskStatus"
               required:
                 - title
+                - status
       responses:
         '200':
           description: 更新したタスクを返す
