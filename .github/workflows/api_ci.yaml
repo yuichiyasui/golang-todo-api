@@ -15,6 +15,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: ./api/go.mod
+          cache-dependency-path: |
+            api/go.sum
       - name: Install dependencies
         run: |
           cd api && go mod download
