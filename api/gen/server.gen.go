@@ -35,6 +35,9 @@ type ServerInterface interface {
 	// タスクを更新する
 	// (PUT /tasks/{taskId})
 	UpdateTask(c *gin.Context, taskId string)
+	// 会員登録用のメールを送信する
+	// (POST /users/registration-email)
+	SendRegistrationEmail(c *gin.Context)
 }
 
 // ServerInterfaceWrapper converts contexts to parameters.
@@ -120,6 +123,19 @@ func (siw *ServerInterfaceWrapper) UpdateTask(c *gin.Context) {
 	siw.Handler.UpdateTask(c, taskId)
 }
 
+// SendRegistrationEmail operation middleware
+func (siw *ServerInterfaceWrapper) SendRegistrationEmail(c *gin.Context) {
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		middleware(c)
+		if c.IsAborted() {
+			return
+		}
+	}
+
+	siw.Handler.SendRegistrationEmail(c)
+}
+
 // GinServerOptions provides options for the Gin server.
 type GinServerOptions struct {
 	BaseURL      string
@@ -151,6 +167,7 @@ func RegisterHandlersWithOptions(router gin.IRouter, si ServerInterface, options
 	router.POST(options.BaseURL+"/tasks", wrapper.CreateTask)
 	router.GET(options.BaseURL+"/tasks/:taskId", wrapper.GetTaskDetail)
 	router.PUT(options.BaseURL+"/tasks/:taskId", wrapper.UpdateTask)
+	router.POST(options.BaseURL+"/users/registration-email", wrapper.SendRegistrationEmail)
 }
 
 type ListTasksRequestObject struct {
@@ -271,6 +288,34 @@ func (response UpdateTaskdefaultJSONResponse) VisitUpdateTaskResponse(w http.Res
 	return json.NewEncoder(w).Encode(response.Body)
 }
 
+type SendRegistrationEmailRequestObject struct {
+	Body *SendRegistrationEmailJSONRequestBody
+}
+
+type SendRegistrationEmailResponseObject interface {
+	VisitSendRegistrationEmailResponse(w http.ResponseWriter) error
+}
+
+type SendRegistrationEmail200Response struct {
+}
+
+func (response SendRegistrationEmail200Response) VisitSendRegistrationEmailResponse(w http.ResponseWriter) error {
+	w.WriteHeader(200)
+	return nil
+}
+
+type SendRegistrationEmaildefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response SendRegistrationEmaildefaultJSONResponse) VisitSendRegistrationEmailResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
 	// タスク一覧を取得する
@@ -285,6 +330,9 @@ type StrictServerInterface interface {
 	// タスクを更新する
 	// (PUT /tasks/{taskId})
 	UpdateTask(ctx context.Context, request UpdateTaskRequestObject) (UpdateTaskResponseObject, error)
+	// 会員登録用のメールを送信する
+	// (POST /users/registration-email)
+	SendRegistrationEmail(ctx context.Context, request SendRegistrationEmailRequestObject) (SendRegistrationEmailResponseObject, error)
 }
 
 type StrictHandlerFunc = strictgin.StrictGinHandlerFunc
@@ -419,22 +467,57 @@ func (sh *strictHandler) UpdateTask(ctx *gin.Context, taskId string) {
 	}
 }
 
+// SendRegistrationEmail operation middleware
+func (sh *strictHandler) SendRegistrationEmail(ctx *gin.Context) {
+	var request SendRegistrationEmailRequestObject
+
+	var body SendRegistrationEmailJSONRequestBody
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.Status(http.StatusBadRequest)
+		ctx.Error(err)
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx *gin.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SendRegistrationEmail(ctx, request.(SendRegistrationEmailRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SendRegistrationEmail")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		ctx.Error(err)
+		ctx.Status(http.StatusInternalServerError)
+	} else if validResponse, ok := response.(SendRegistrationEmailResponseObject); ok {
+		if err := validResponse.VisitSendRegistrationEmailResponse(ctx.Writer); err != nil {
+			ctx.Error(err)
+		}
+	} else if response != nil {
+		ctx.Error(fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/8xWwWsTTxT+V8r7/Y5LE/VS9latSMBDofUkOYzZ13Ta3ZlxZrYQyoLZXgRRS5HWoiB4",
-	"UKuiBXtQUPvHTBvjfyEz06RpsklbczCnHXbfvPd9733vY9ehxhPBGTKtIFwHVVvGhLjjTSm5tAchuUCp",
-	"KbrXNR6hfeqGQAhBaUlZHbIAElSK1Iu+ZQFIvJ9SiRGEd32G0/hq0Inn91awpm2uRaJWB0tHqGqSCk05",
-	"K0RAo8LXShOdugT/S1yCEP4rnZIunTAu2ZILPjILQFMdX4AKjaATG5yB1606jN1CFxSyNLG5NI84BEDZ",
-	"vOR1iUrZlJz1NqiLwpJlS9wB9EhhkUd8alaIqdn5CgSwhlK5PsGV6fJ02ZblAhkRFEK45l4FIIhedhhK",
-	"mqhVd6qjtg/bdmKZVCII4TZVetFFWPpKcKb8RK6Wy14TTCNzF4kQMa25q6UV5QflW2xPVGNyoUm4GXjS",
-	"RErS8JzPCABMfmjybyb/fPT1QfvNW5NvtQ+fmeYuuMglksb6UuBGYfLLUAjindnYMxvfnTZUmiRENgrB",
-	"HT/dPv65Y5q7Jn9kVUPqyo3dsq1mAQiuClp/QyLR6FripYdKX+dR41LMRq7RkKaa5qf2+4+t508gGFyp",
-	"7noMuXy8+XjwWt/u+ByD+5H5wDFUdpZuoSsM7nERkP5hH/142Xq4aZo7pvmqt1GVucnSnMm3OlCL1ZYF",
-	"JytfWrePSpQN3f1b6FZ/DjWhsfMMSRLUKG2+oQKozDkrg9B5DATASGJ766tBb/e1TDHoaUn/pKpjquF8",
-	"qxlhLe29L78O9ifUWrrgzrWWtGCwd0R06iz/ZqoT4mZj/SCM7YAjfhXGt8K/EX/rxUFre7/f5SZzBUy+",
-	"1YE7xOnsPZRrHWWnMoYQYl4j8TJXOpwpz5TBqvHk3ggFffi9/dqX8b9YPeKHrJr9CQAA//8+epytSwsA",
-	"AA==",
+	"H4sIAAAAAAAC/8xXTW/bRhD9K8G0RzZS20vAW1oHhYAegtg9FT5sxZHMRORudpcBBINASKKA+m2ogVO3",
+	"BQLn0Dpx4ARtDg3q1j9mJVn+F8XuSjIlUVRSHaKTCGp29s28N0+jXajTgNEQQynA3QVR38GAmMcbnFOu",
+	"HxinDLn00byuUw/1p2wzBBeE5H7YhNiBAIUgzaLvYgc43o18jh64n9sMl/HbzjiefnEb61Ln2sTQu4VN",
+	"X0hOpE/DGwHxW7fwboRC6gs8FHXuM/0VuNA7/bn/4+H5wd8X3/5x/uBIJScqO1TZqcqOL+4nvbNDlT1V",
+	"6XOVHqn0lco64MzUhDr9fF57uP9lJ59RpY9V9pXKnqn0FTjQoDwgEtxRDmdJ7TaqqOQtIu7Md3sKUEHT",
+	"fa/wtZBERibBuxwb4MI7lUueKyOSK/rKTRsZOyB92XoN9nwPxrHOFLzJrYuq25yAwjAKdC5JPQoO+OFN",
+	"TpschdApaZjXxASFLjZsUAPQIoUt6tEr1xm7cv1mDRy4h1xY4t6/Wr1a1ddShiFhPrjwoXnlACNyx2Co",
+	"SCLumKcmGk3pthux1Txw4VNfyC0TocsXjIbCMvJBtWrHIJQYmoOEsZZfN0crt4UlyrZYP/kSg9diwnBg",
+	"iyack7ateVqRKj3TEk6f9/66P/ztd5V2h2cPVHIAJrJBopZ8I3BlmOz8F4I4UtkTlZ0abYgoCAhvF4Lr",
+	"/7Df//ehSg5U+o1WDWkKQ7uudjt2gFFR0PqPORKJpiVWeijkR9Rrv1FlpWO0oKkqORk+fTb46fv5Mc6N",
+	"x4LD/b3vlk6/zTE/H7ENXEFl0+UWusL8HBcBmSW798+vg86eSh6q5FG+UbWN9dKcSrtjqMVqi53RyFd2",
+	"9UfNixfO/idoRn8DpbV0RjgJUCLX+RYKoLZhrAxc4zHgQEgC3Vt7G+S7L3mETq4ls0xtr6iG5VZTYi3D",
+	"J3+ev3yxptYyAbfUWqICYj9j3qWzvB1W18TNVloQVnbAklVhdSv8P+If/PJysP9i1uXWcwRU2h3DXex0",
+	"kUAuKjy3Qr83WXKLf3ULV+4VfoDLii9d7xdLYKZRk408ORmt+cnxoLPX//rRWhBW8q9Epd0x4hkKNW+a",
+	"Qp0J+b2xOUW8BS60aJ20dqiQ7rXqtSpoQxmdKzGB44v9x/YauyXn/Avi7fi/AAAA//9lJBGKAQ4AAA==",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
