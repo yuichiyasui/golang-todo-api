@@ -5,6 +5,7 @@ import (
 	"api/model"
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
@@ -21,7 +22,8 @@ func NewUserRegistrationTokensRepository(db *sql.DB) repository.UserRegistration
 
 func (r *UserRegistrationTokensRepository) Save(ctx context.Context, token string) error {
 	urt := model.UserRegistrationToken{
-		Token: token,
+		Token:     token,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}
 	err := urt.Insert(ctx, r.db, boil.Infer())
 	if err != nil {
