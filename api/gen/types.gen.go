@@ -20,8 +20,8 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// SendRegistrationEmailRequest 会員登録用のメール送信リクエスト
-type SendRegistrationEmailRequest struct {
+// SignUpEmailRequest 会員登録用のメール送信リクエスト
+type SignUpEmailRequest struct {
 	// Email 送信先のメールアドレス
 	Email openapi_types.Email `json:"email"`
 }
@@ -62,5 +62,5 @@ type CreateTaskJSONRequestBody CreateTaskJSONBody
 // UpdateTaskJSONRequestBody defines body for UpdateTask for application/json ContentType.
 type UpdateTaskJSONRequestBody UpdateTaskJSONBody
 
-// SendRegistrationEmailJSONRequestBody defines body for SendRegistrationEmail for application/json ContentType.
-type SendRegistrationEmailJSONRequestBody = SendRegistrationEmailRequest
+// SendSignUpEmailJSONRequestBody defines body for SendSignUpEmail for application/json ContentType.
+type SendSignUpEmailJSONRequestBody = SignUpEmailRequest

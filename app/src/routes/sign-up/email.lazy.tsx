@@ -33,7 +33,7 @@ const Page = () => {
 
   const submit = form.handleSubmit(async (data) => {
     try {
-      await client.POST("/users/registration-email", {
+      await client.POST("/users/sign-up/email", {
         body: {
           email: data.email,
         },

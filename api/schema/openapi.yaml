@@ -134,17 +134,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /users/registration-email:
+  /users/sign-up/email:
     post:
       summary: 会員登録用のメールを送信する
       tags:
         - user
-      operationId: sendRegistrationEmail
+      operationId: sendSignUpEmail
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SendRegistrationEmailRequest"
+              $ref: "#/components/schemas/SignUpEmailRequest"
       responses:
         '200':
           description: メールの送信に成功
@@ -188,7 +188,7 @@ components:
       required:
         - code
         - message
-    SendRegistrationEmailRequest:
+    SignUpEmailRequest:
       type: object
       description: 会員登録用のメール送信リクエスト
       properties:

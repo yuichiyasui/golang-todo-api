@@ -24,7 +24,7 @@ func (t *UserRegistrationToken) Value() string {
 	return t.value
 }
 
-func (t *UserRegistrationToken) GenerateUserRegistrationUrl() string {
+func (t *UserRegistrationToken) GenerateSignUpUrl() string {
 	origin := os.Getenv("APP_URL")
-	return origin + "/register?token=" + t.value
+	return origin + "/sign-up?token=" + t.value
 }

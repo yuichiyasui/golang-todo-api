@@ -17,9 +17,9 @@ export interface paths {
     /** タスクを更新する */
     put: operations["updateTask"];
   };
-  "/users/registration-email": {
+  "/users/sign-up/email": {
     /** 会員登録用のメールを送信する */
-    post: operations["sendRegistrationEmail"];
+    post: operations["sendSignUpEmail"];
   };
 }
 
@@ -40,7 +40,7 @@ export interface components {
       message: string;
     };
     /** @description 会員登録用のメール送信リクエスト */
-    SendRegistrationEmailRequest: {
+    SignUpEmailRequest: {
       /**
        * Format: email
        * @description 送信先のメールアドレス
@@ -165,10 +165,10 @@ export interface operations {
     };
   };
   /** 会員登録用のメールを送信する */
-  sendRegistrationEmail: {
+  sendSignUpEmail: {
     requestBody?: {
       content: {
-        "application/json": components["schemas"]["SendRegistrationEmailRequest"];
+        "application/json": components["schemas"]["SignUpEmailRequest"];
       };
     };
     responses: {
