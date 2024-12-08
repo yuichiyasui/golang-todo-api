@@ -59,7 +59,7 @@ const Page = () => {
           ユーザー登録のメールの送信
         </h1>
         {(() => {
-          if (!form.formState.isSubmitted) {
+          if (!form.formState.isSubmitSuccessful) {
             return (
               <>
                 <Form {...form}>
@@ -93,6 +93,17 @@ const Page = () => {
                         メールを送信
                       </Button>
                     </div>
+                    <p
+                      aria-live="assertive"
+                      className={cn(
+                        "text-red-500",
+                        "text-sm",
+                        "empty:hidden",
+                        "mt-2",
+                      )}
+                    >
+                      {form.formState.errors.root?.message}
+                    </p>
                   </form>
                 </Form>
                 <hr className={cn("my-4")} />

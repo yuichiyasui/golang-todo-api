@@ -4,7 +4,6 @@ import (
 	"api/domain"
 	"api/gen"
 	"context"
-	"errors"
 	"net/http"
 )
 
@@ -19,14 +18,6 @@ func (s *Server) SendSignUpEmail(ctx context.Context, request gen.SendSignUpEmai
 			},
 		}, err
 	}
-
-	return gen.SendSignUpEmaildefaultJSONResponse{
-		StatusCode: http.StatusInternalServerError,
-		Body: gen.Error{
-			Code:    "",
-			Message: "not implemented",
-		},
-	}, errors.New("not implemented")
 
 	token, err := domain.NewUserRegistrationToken()
 	if err != nil {
