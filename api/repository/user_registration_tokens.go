@@ -20,9 +20,10 @@ func NewUserRegistrationTokensRepository(db *sql.DB) repository.UserRegistration
 	}
 }
 
-func (r *UserRegistrationTokensRepository) Save(ctx context.Context, token string) error {
+func (r *UserRegistrationTokensRepository) Save(ctx context.Context, token string, email string) error {
 	urt := model.UserRegistrationToken{
 		Token:     token,
+		Email:     email,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}
 	err := urt.Insert(ctx, r.db, boil.Infer())

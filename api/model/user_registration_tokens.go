@@ -25,6 +25,7 @@ import (
 type UserRegistrationToken struct {
 	ID        uint64    `boil:"id" json:"id" toml:"id" yaml:"id"`
 	Token     string    `boil:"token" json:"token" toml:"token" yaml:"token"`
+	Email     string    `boil:"email" json:"email" toml:"email" yaml:"email"`
 	ExpiresAt time.Time `boil:"expires_at" json:"expires_at" toml:"expires_at" yaml:"expires_at"`
 
 	R *userRegistrationTokenR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -34,20 +35,24 @@ type UserRegistrationToken struct {
 var UserRegistrationTokenColumns = struct {
 	ID        string
 	Token     string
+	Email     string
 	ExpiresAt string
 }{
 	ID:        "id",
 	Token:     "token",
+	Email:     "email",
 	ExpiresAt: "expires_at",
 }
 
 var UserRegistrationTokenTableColumns = struct {
 	ID        string
 	Token     string
+	Email     string
 	ExpiresAt string
 }{
 	ID:        "user_registration_tokens.id",
 	Token:     "user_registration_tokens.token",
+	Email:     "user_registration_tokens.email",
 	ExpiresAt: "user_registration_tokens.expires_at",
 }
 
@@ -56,10 +61,12 @@ var UserRegistrationTokenTableColumns = struct {
 var UserRegistrationTokenWhere = struct {
 	ID        whereHelperuint64
 	Token     whereHelperstring
+	Email     whereHelperstring
 	ExpiresAt whereHelpertime_Time
 }{
 	ID:        whereHelperuint64{field: "`user_registration_tokens`.`id`"},
 	Token:     whereHelperstring{field: "`user_registration_tokens`.`token`"},
+	Email:     whereHelperstring{field: "`user_registration_tokens`.`email`"},
 	ExpiresAt: whereHelpertime_Time{field: "`user_registration_tokens`.`expires_at`"},
 }
 
@@ -80,8 +87,8 @@ func (*userRegistrationTokenR) NewStruct() *userRegistrationTokenR {
 type userRegistrationTokenL struct{}
 
 var (
-	userRegistrationTokenAllColumns            = []string{"id", "token", "expires_at"}
-	userRegistrationTokenColumnsWithoutDefault = []string{"token", "expires_at"}
+	userRegistrationTokenAllColumns            = []string{"id", "token", "email", "expires_at"}
+	userRegistrationTokenColumnsWithoutDefault = []string{"token", "email", "expires_at"}
 	userRegistrationTokenColumnsWithDefault    = []string{"id"}
 	userRegistrationTokenPrimaryKeyColumns     = []string{"id"}
 	userRegistrationTokenGeneratedColumns      = []string{}

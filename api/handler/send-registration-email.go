@@ -43,7 +43,7 @@ func (s *Server) SendSignUpEmail(ctx context.Context, request gen.SendSignUpEmai
 		}, err
 	}
 
-	err = s.userRegistrationTokensRepository.Save(ctx, token.Value())
+	err = s.userRegistrationTokensRepository.Save(ctx, token.Value(), email.Value())
 	if err != nil {
 		return gen.SendSignUpEmaildefaultJSONResponse{
 			StatusCode: http.StatusInternalServerError,
