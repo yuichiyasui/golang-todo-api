@@ -17,6 +17,10 @@ export interface paths {
     /** タスクを更新する */
     put: operations["updateTask"];
   };
+  "/users/registration-email": {
+    /** 会員登録用のメールを送信する */
+    post: operations["sendRegistrationEmail"];
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -34,6 +38,14 @@ export interface components {
     Error: {
       code: string;
       message: string;
+    };
+    /** @description 会員登録用のメール送信リクエスト */
+    SendRegistrationEmailRequest: {
+      /**
+       * Format: email
+       * @description 送信先のメールアドレス
+       */
+      email: string;
     };
   };
   responses: never;
@@ -143,6 +155,26 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["Task"];
         };
+      };
+      /** @description エラー */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** 会員登録用のメールを送信する */
+  sendRegistrationEmail: {
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["SendRegistrationEmailRequest"];
+      };
+    };
+    responses: {
+      /** @description メールの送信に成功 */
+      200: {
+        content: never;
       };
       /** @description エラー */
       default: {

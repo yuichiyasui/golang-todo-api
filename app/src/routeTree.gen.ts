@@ -16,11 +16,18 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
+const SignInLazyImport = createFileRoute('/sign-in')()
 const NewLazyImport = createFileRoute('/new')()
 const TaskIdLazyImport = createFileRoute('/$taskId')()
 const IndexLazyImport = createFileRoute('/')()
+const SignUpEmailLazyImport = createFileRoute('/sign-up/email')()
 
 // Create/Update Routes
+
+const SignInLazyRoute = SignInLazyImport.update({
+  path: '/sign-in',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/sign-in.lazy').then((d) => d.Route))
 
 const NewLazyRoute = NewLazyImport.update({
   path: '/new',
@@ -36,6 +43,11 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const SignUpEmailLazyRoute = SignUpEmailLazyImport.update({
+  path: '/sign-up/email',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/sign-up/email.lazy').then((d) => d.Route))
 
 // Populate the FileRoutesByPath interface
 
@@ -62,6 +74,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewLazyImport
       parentRoute: typeof rootRoute
     }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/sign-up/email': {
+      id: '/sign-up/email'
+      path: '/sign-up/email'
+      fullPath: '/sign-up/email'
+      preLoaderRoute: typeof SignUpEmailLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -71,6 +97,8 @@ export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   TaskIdLazyRoute,
   NewLazyRoute,
+  SignInLazyRoute,
+  SignUpEmailLazyRoute,
 })
 
 /* prettier-ignore-end */
@@ -83,7 +111,9 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/$taskId",
-        "/new"
+        "/new",
+        "/sign-in",
+        "/sign-up/email"
       ]
     },
     "/": {
@@ -94,6 +124,12 @@ export const routeTree = rootRoute.addChildren({
     },
     "/new": {
       "filePath": "new.lazy.tsx"
+    },
+    "/sign-in": {
+      "filePath": "sign-in.lazy.tsx"
+    },
+    "/sign-up/email": {
+      "filePath": "sign-up/email.lazy.tsx"
     }
   }
 }
