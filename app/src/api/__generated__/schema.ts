@@ -17,6 +17,10 @@ export interface paths {
     /** タスクを更新する */
     put: operations["updateTask"];
   };
+  "/users/sign-up": {
+    /** 会員登録を行う */
+    post: operations["signUp"];
+  };
   "/users/sign-up/email": {
     /** 会員登録用のメールを送信する */
     post: operations["sendSignUpEmail"];
@@ -38,6 +42,15 @@ export interface components {
     Error: {
       code: string;
       message: string;
+    };
+    /** @description 会員登録リクエスト */
+    SignUpRequest: {
+      /** @description トークン */
+      token: string;
+      /** @description ユーザ名 */
+      username: string;
+      /** @description パスワード */
+      password: string;
     };
     /** @description 会員登録用のメール送信リクエスト */
     SignUpEmailRequest: {
@@ -155,6 +168,26 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["Task"];
         };
+      };
+      /** @description エラー */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** 会員登録を行う */
+  signUp: {
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["SignUpRequest"];
+      };
+    };
+    responses: {
+      /** @description 会員登録に成功 */
+      200: {
+        content: never;
       };
       /** @description エラー */
       default: {

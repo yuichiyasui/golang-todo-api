@@ -13,6 +13,7 @@ type Server struct {
 	db                               *sql.DB
 	tasksRepository                  repository.TasksRepositoryInterface
 	userRegistrationTokensRepository domainRepository.UserRegistrationTokensRepositoryInterface
+	usersRepository                  domainRepository.UsersRepositoryInterface
 	mailer                           domain.MailerInterface
 }
 
@@ -21,18 +22,16 @@ type Server struct {
 var _ gen.StrictServerInterface = (*Server)(nil)
 
 func NewServer(db *sql.DB) (*Server, error) {
-	tasksRepo, err := repository.NewTasksRepository(db)
-	if err != nil {
-		return nil, err
-	}
-
+	tasksRepo := repository.NewTasksRepository(db)
 	userRegistrationTokensRepo := repository.NewUserRegistrationTokensRepository(db)
+	usersRepo := repository.NewUsersRepository(db)
 	mailer := infrastructure.NewMailer()
 
 	return &Server{
 		db:                               db,
 		tasksRepository:                  tasksRepo,
 		userRegistrationTokensRepository: userRegistrationTokensRepo,
+		usersRepository:                  usersRepo,
 		mailer:                           mailer,
 	}, nil
 }

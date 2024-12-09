@@ -79,18 +79,3 @@ func (mr *MockTasksRepositoryInterfaceMockRecorder) Save(ctx, input interface{})
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockTasksRepositoryInterface)(nil).Save), ctx, input)
 }
-
-// UpdateTask mocks base method.
-func (m *MockTasksRepositoryInterface) UpdateTask(ctx context.Context, input task.Task) (*task.Task, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTask", ctx, input)
-	ret0, _ := ret[0].(*task.Task)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateTask indicates an expected call of UpdateTask.
-func (mr *MockTasksRepositoryInterfaceMockRecorder) UpdateTask(ctx, input interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockTasksRepositoryInterface)(nil).UpdateTask), ctx, input)
-}

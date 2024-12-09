@@ -22,8 +22,8 @@ type TasksRepository struct {
 	db *sql.DB
 }
 
-func NewTasksRepository(db *sql.DB) (TasksRepositoryInterface, error) {
-	return &TasksRepository{db: db}, nil
+func NewTasksRepository(db *sql.DB) TasksRepositoryInterface {
+	return &TasksRepository{db: db}
 }
 
 func (r *TasksRepository) GetTasks(ctx context.Context) ([]*task.Task, error) {

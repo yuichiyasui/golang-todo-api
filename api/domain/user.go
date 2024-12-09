@@ -6,9 +6,10 @@ import (
 )
 
 type User struct {
-	id    string
-	name  string
-	email string
+	id       string
+	name     string
+	email    Email
+	password string
 }
 
 func (u *User) Id() string {
@@ -19,8 +20,12 @@ func (u *User) Name() string {
 	return u.name
 }
 
-func (u *User) Email() string {
+func (u *User) Email() Email {
 	return u.email
+}
+
+func (u *User) Password() string {
+	return u.password
 }
 
 func validateName(name string) error {
@@ -36,27 +41,20 @@ func validateName(name string) error {
 	return nil
 }
 
-func validateEmail(email string) error {
-	if email == "" {
-		return fmt.Errorf("email is required")
-	}
-
-	length := utf8.RuneCountInString(email)
-	if length > 100 {
-		return fmt.Errorf("email is too long")
-	}
-
-	return nil
-}
-
-func NewUser(id, name, email string) (*User, error) {
+func NewUser(id, name, email, password string) (*User, error) {
 	if err := validateName(name); err != nil {
 		return nil, err
 	}
 
-	if err := validateEmail(email); err != nil {
+	e, err := NewEmail(email)
+	if err != nil {
 		return nil, err
 	}
 
-	return &User{id: id, name: name, email: email}, nil
+	return &User{
+		id:       id,
+		name:     name,
+		email:    *e,
+		password: password,
+	}, nil
 }
