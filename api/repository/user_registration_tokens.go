@@ -26,7 +26,8 @@ func (r *UserRegistrationTokensRepository) Save(ctx context.Context, token strin
 		Email:     email,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}
-	err := urt.Insert(ctx, r.db, boil.Infer())
+
+	err := urt.Upsert(ctx, r.db, boil.Infer(), boil.Infer())
 	if err != nil {
 		return err
 	}

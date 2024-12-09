@@ -676,6 +676,7 @@ func (o UserRegistrationTokenSlice) UpdateAll(ctx context.Context, exec boil.Con
 
 var mySQLUserRegistrationTokenUniqueColumns = []string{
 	"id",
+	"email",
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
