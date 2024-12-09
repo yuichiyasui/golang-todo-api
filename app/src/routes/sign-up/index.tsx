@@ -155,7 +155,9 @@ const Page = () => {
 
           return (
             <div>
-              <p>ユーザー登録が完了しました。ログインしてください。</p>
+              <p className={cn("text-sm", "mb-2")}>
+                ユーザー登録が完了しました。
+              </p>
               <div>
                 <Link to="/sign-in">ログイン</Link>
               </div>

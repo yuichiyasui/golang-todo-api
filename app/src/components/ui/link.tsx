@@ -11,7 +11,7 @@ export const Link = ({
     <Button
       asChild
       variant="link"
-      className={cn("px-1", "py-0", "h-auto", className)}
+      className={cn("px-0", "py-0", "h-auto", className)}
     >
       <ReactRouterLink {...props}>{props.children}</ReactRouterLink>
     </Button>
