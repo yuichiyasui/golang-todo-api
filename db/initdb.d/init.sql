@@ -13,8 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS user_registration_tokens (
     id SERIAL PRIMARY KEY,
-    token VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    token VARCHAR(36) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
     expires_at datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
