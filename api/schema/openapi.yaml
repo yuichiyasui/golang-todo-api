@@ -134,6 +134,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /users/sign-up:
+    post: 
+      summary: 会員登録を行う
+      tags:
+        - user
+      operationId: signUp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpRequest"
+      responses:
+        '201':
+          description: 会員登録に成功
+        default:
+          description: エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /users/sign-up/email:
     post:
       summary: 会員登録用のメールを送信する
@@ -188,6 +208,23 @@ components:
       required:
         - code
         - message
+    SignUpRequest: 
+      type: object
+      description: 会員登録リクエスト
+      properties:
+        token:
+          type: string
+          description: トークン
+        username:
+          type: string
+          description: ユーザ名
+        password:
+          type: string
+          description: パスワード
+      required:
+        - token
+        - username
+        - password
     SignUpEmailRequest:
       type: object
       description: 会員登録用のメール送信リクエスト

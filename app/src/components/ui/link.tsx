@@ -1,22 +1,19 @@
 import { cn } from "@/utils";
 import { Link as ReactRouterLink } from "@tanstack/react-router";
 import type { ComponentPropsWithoutRef } from "react";
+import { Button } from "./button";
 
-export const Link = (
-  props: ComponentPropsWithoutRef<typeof ReactRouterLink>,
-) => {
+export const Link = ({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<typeof ReactRouterLink>) => {
   return (
-    <ReactRouterLink
-      {...props}
-      className={cn(
-        "hover:underline",
-        "text-blue-500",
-        "underline-offset-2",
-        "decoration-blue-500",
-        ...(props.className ?? ""),
-      )}
+    <Button
+      asChild
+      variant="link"
+      className={cn("px-1", "py-0", "h-auto", className)}
     >
-      {props.children}
-    </ReactRouterLink>
+      <ReactRouterLink {...props}>{props.children}</ReactRouterLink>
+    </Button>
   );
 };

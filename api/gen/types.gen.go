@@ -26,6 +26,18 @@ type SignUpEmailRequest struct {
 	Email openapi_types.Email `json:"email"`
 }
 
+// SignUpRequest 会員登録リクエスト
+type SignUpRequest struct {
+	// Password パスワード
+	Password string `json:"password"`
+
+	// Token トークン
+	Token string `json:"token"`
+
+	// Username ユーザ名
+	Username string `json:"username"`
+}
+
 // Task defines model for Task.
 type Task struct {
 	Description string     `json:"description"`
@@ -61,6 +73,9 @@ type CreateTaskJSONRequestBody CreateTaskJSONBody
 
 // UpdateTaskJSONRequestBody defines body for UpdateTask for application/json ContentType.
 type UpdateTaskJSONRequestBody UpdateTaskJSONBody
+
+// SignUpJSONRequestBody defines body for SignUp for application/json ContentType.
+type SignUpJSONRequestBody = SignUpRequest
 
 // SendSignUpEmailJSONRequestBody defines body for SendSignUpEmail for application/json ContentType.
 type SendSignUpEmailJSONRequestBody = SignUpEmailRequest

@@ -13,6 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as SignUpIndexImport } from './routes/sign-up/index'
 
 // Create Virtual Routes
 
@@ -43,6 +44,11 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const SignUpIndexRoute = SignUpIndexImport.update({
+  path: '/sign-up/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const SignUpEmailLazyRoute = SignUpEmailLazyImport.update({
   path: '/sign-up/email',
@@ -88,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignUpEmailLazyImport
       parentRoute: typeof rootRoute
     }
+    '/sign-up/': {
+      id: '/sign-up/'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -99,6 +112,7 @@ export const routeTree = rootRoute.addChildren({
   NewLazyRoute,
   SignInLazyRoute,
   SignUpEmailLazyRoute,
+  SignUpIndexRoute,
 })
 
 /* prettier-ignore-end */
@@ -113,7 +127,8 @@ export const routeTree = rootRoute.addChildren({
         "/$taskId",
         "/new",
         "/sign-in",
-        "/sign-up/email"
+        "/sign-up/email",
+        "/sign-up/"
       ]
     },
     "/": {
@@ -130,6 +145,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/sign-up/email": {
       "filePath": "sign-up/email.lazy.tsx"
+    },
+    "/sign-up/": {
+      "filePath": "sign-up/index.tsx"
     }
   }
 }
