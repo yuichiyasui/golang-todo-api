@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/utils";
 import { useForm } from "react-hook-form";
-import { components } from "@/api/__generated__/schema";
+import type { components } from "@/api/__generated__/schema";
 import { useEffect } from "react";
 import {
   Select,

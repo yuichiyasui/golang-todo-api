@@ -1,6 +1,6 @@
 import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { components } from "@/api/__generated__/schema";
+import type { components } from "@/api/__generated__/schema";
 import { client } from "@/api/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,7 +55,7 @@ const Page = () => {
                   <TableCell>{t.id}</TableCell>
                   <TableCell>
                     <p>
-                      <Link to={`/$taskId`} params={{ taskId: t.id }}>
+                      <Link to={"/$taskId"} params={{ taskId: t.id }}>
                         {t.title}
                       </Link>
                     </p>
