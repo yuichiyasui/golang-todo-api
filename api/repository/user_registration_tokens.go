@@ -11,6 +11,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+//go:generate mockgen -source=./user_registration_tokens.go -destination=./user_registration_tokens_mock.go -package=repository
 type UserRegistrationTokensRepository struct {
 	db *sql.DB
 }

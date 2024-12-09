@@ -10,6 +10,7 @@ import (
 	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
+//go:generate mockgen -source=./users.go -destination=./users_mock.go -package=repository
 type UsersRepository struct {
 	db *sql.DB
 }
